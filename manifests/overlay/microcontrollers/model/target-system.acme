@@ -1,0 +1,99 @@
+ import kubernetes-family.acme;
+
+System MicroControllersSystem : KubernetesFam = new KubernetesFam extended with {
+
+    // -----------------------------------------------------
+    // Components for Monitoring
+    // -----------------------------------------------------
+
+    //Component Monitor service
+    Component MonitorS : ServiceT = new ServiceT extended with {
+        Port apiPort  = { }
+
+        // Just an example of properties
+        Property name = "monitor";
+        Property expectedSlo = 0.95;
+        Property desiredSlo = 0.98;
+    }
+
+    //Component Monitor Deployment
+    Component MonitorD : DeploymentT = new DeploymentT extended with {
+        Port apiPort  = { }
+        Port monitorAnalyserPort  = { }
+    
+        Property namespace = "default";
+        Property hasAlternativeImages = true;
+        Property alternativeImages = <"californibrs/monitor-proactivemonitoring","californibrs/monitor-dynamicmonitoring">;
+        Property name = "monitor";
+
+        Property replicasHigh = 0;
+        Property replicasLow = 0;
+        Property stability = 0;
+
+    }
+
+    //Connector responsible for connecting the Deployment (MonitorD) and the service (MonitorS)
+    Connector monitorSC = new LabelSelectorConnectorT extended with {
+        Property selectors = <[name : string = "app";value : string = "monitor";]>;
+    }
+
+    //Performing the kubernetes connection between Deployment (MonitorD) and the service (MonitorS)
+    Attachment MonitorS.apiPort to monitorSC.selectee;
+    Attachment MonitorD.apiPort to monitorSC.selector;  
+
+
+    // -----------------------------------------------------
+    // Components for Analysing
+    // -----------------------------------------------------
+    // Component Analysis service
+    Component AnalyserS : ServiceT = new ServiceT extended with {
+        Port apiPort  = { }
+        Port monitorAnalyserPort  = { }
+        
+        // Just an example of properties
+        Property name = "analyser";
+        Property expectedSlo = 0.95;
+        Property desiredSlo = 0.98;
+    }
+
+    // Component Analysis deployment
+    Component AnalyserD : DeploymentT = new DeploymentT extended with {
+        Port apiPort  = { }
+    
+        Property namespace = "default";
+        Property hasAlternativeImages = true;
+        Property alternativeImages = <"californibrs/analyser-selfdiagnosis","californibrs/analyser-reliabilityestimation">;
+        Property name = "analyser";
+
+        Property replicasHigh = 0;
+        Property replicasLow = 0;
+        Property stability = 0;
+
+    }
+
+    //Connector responsible for connecting the Deployment (AnalyseD) and the service (AnalyseS)
+    Connector analyserSC = new LabelSelectorConnectorT extended with {
+        Property selectors = <[name : string = "app";value : string = "analyser";]>;
+    }
+
+    //Performing the kubernetes connection between Deployment (AnalyserD) and the service (AnalyserS)
+    Attachment AnalyserS.apiPort to analyserSC.selectee;
+    Attachment AnalyserD.apiPort to analyserSC.selector; 
+
+
+    // ------------------------------------------------------------------------
+    // Connecting a microcontroller (Monitor) to another (Analyser)
+    // ------------------------------------------------------------------------
+
+    // Defining the connector
+    Connector MonitorAnalyserConn  = new ServiceConnectorT extended with {
+        Property namespace = "default";
+        Property name = "MonitorAnalyseConn";
+    }
+
+    // Connecting both of them
+    Attachment MonitorD.monitorAnalyserPort to MonitorAnalyserConn.caller;
+    Attachment AnalyserS.monitorAnalyserPort to MonitorAnalyserConn.callee;
+    
+
+}
