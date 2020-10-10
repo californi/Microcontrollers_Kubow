@@ -1,6 +1,6 @@
 ## General informations
 
-This project is a prototype for microcontrollers using the Kubow framework (i.e. Aderaldo et al. all, 2019).
+This project is a prototype for microcontrollers using the Kubow framework (i.e. Aderaldo et al. all, 2019).  This project is together to the project https://github.com/californi/Microcontrollers-python-version .  Both w.r.t to testing microservices and their structures involving controllers for Self-Adaptive Systems.
 
 ## Publications
 
