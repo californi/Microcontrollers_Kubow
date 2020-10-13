@@ -1,28 +1,26 @@
 module kubow.strategies;
-import model "PodinfoSystem:Acme" { PodinfoSystem as M, KubernetesFam as K };
+import model "MicroControllersSystem:Acme" { MicroControllersSystem as M, KubernetesFam as K };
 
-tactic addReplicas(int count) {
-  int replicas = M.podinfoD.desiredReplicas;
+
+define boolean highTraffic = M.monitorS.traffic >= 50;
+define boolean lowTraffic = M.monitorS.traffic < 50;
+
+define string proactiveMonitoringModeImage = "californibrs/monitor-proactivemonitoring";
+define string dynamicMonitoringModeImage = "californibrs/monitor-dynamicmonitoring";
+
+tactic differentMonitoring() {
   condition {
-    M.podinfoD.maxReplicas > M.podinfoD.desiredReplicas;
+    highTraffic || lowTraffic;
   }
   action {
-    M.scaleUp(M.podinfoD, count);
+    if (highTraffic) {
+      M.rollOut(M.monitorD, "monitor", proactiveMonitoringModeImage);
+    }
+    if (lowTraffic) {
+      M.rollOut(M.monitorD, "monitor", dynamicMonitoringModeImage);
+    }
   }
   effect @[10000] {
-    replicas' + count == M.podinfoD.desiredReplicas;
-  }
-}
-
-tactic removeReplicas(int count) {
-  int replicas = M.podinfoD.desiredReplicas;
-  condition {
-    M.podinfoD.minReplicas < M.podinfoD.desiredReplicas;
-  }
-  action {
-    M.scaleDown(M.podinfoD, count);
-  }
-  effect @[10000] {
-    replicas' - count == M.podinfoD.desiredReplicas;
+    lowTraffic;
   }
 }

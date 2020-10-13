@@ -29,20 +29,20 @@ gauge-instances:
 
   TrafficGauge:
     type: KubowGaugeT
-    model: "PodinfoSystem:Acme"
+    model: "MicroControllersSystem:Acme"
     commands:
-      "setServiceProperty()": "podinfoS.setServiceProperty($<jsonValue>,<traffic>)"
+      "setServiceProperty()": "monitorS.setServiceProperty($<jsonValue>,<traffic>)"
     setupValues:
       targetIP: "127.0.0.1"
     configValues:
-      targetProbeType: default-podinfo-traffic@*
+      targetProbeType: default-monitor-traffic@*
 
-  KubeZnnInfoGauge:
+  MonitorInfoGauge:
     type: KubowGaugeT
-    model: "PodinfoSystem:Acme"
+    model: "MicroControllersSystem:Acme"
     commands:
-      "setDeploymentInfo()": podinfoD.setDeploymentInfo($<jsonValue>)
+      "setDeploymentInfo()": monitorD.setDeploymentInfo($<jsonValue>)
     setupValues:
       targetIP: "127.0.0.1"
     configValues:
-      targetProbeType: deployments.default.podinfoD.probe@*
+      targetProbeType: deployments.default.monitor.probe@*
