@@ -8,8 +8,8 @@ define boolean lowTraffic = M.monitorS.traffic < 50;
 /*
  * ----
  */
-strategy ImproveMonitoring [ highTraffic || lowTraffic ] {
-  t0: (highTraffic) -> differentMonitoring() @[20000 /*ms*/] {
+strategy ImproveMonitoring [ lowTraffic ] {
+  t0: (lowTraffic) -> differentMonitoring() @[15000 /*ms*/] {
     t0a: (success) -> done;
   }
   t1: (default) -> TNULL;

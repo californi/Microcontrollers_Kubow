@@ -1,4 +1,4 @@
- import kubernetes-family.acme;
+import kubernetes-family.acme;
 
 System MicroControllersSystem : KubernetesFam = new KubernetesFam extended with {
 
@@ -37,10 +37,6 @@ System MicroControllersSystem : KubernetesFam = new KubernetesFam extended with 
         Property selectors = <[name : string = "app";value : string = "monitor";]>;
     }
 
-    //Performing the kubernetes connection between Deployment (MonitorD) and the service (MonitorS)
-    Attachment monitorS.apiPort to monitorSC.selectee;
-    Attachment monitorD.apiPort to monitorSC.selector;  
-
 
     // -----------------------------------------------------
     // Components for Analysing
@@ -76,9 +72,6 @@ System MicroControllersSystem : KubernetesFam = new KubernetesFam extended with 
         Property selectors = <[name : string = "app";value : string = "analyser";]>;
     }
 
-    //Performing the kubernetes connection between Deployment (AnalyserD) and the service (AnalyserS)
-    Attachment analyserS.apiPort to analyserSC.selectee;
-    Attachment analyserD.apiPort to analyserSC.selector; 
 
 
     // ------------------------------------------------------------------------
@@ -91,9 +84,17 @@ System MicroControllersSystem : KubernetesFam = new KubernetesFam extended with 
         Property name = "monitorAnalyseConn";
     }
 
+
+	//Performing the kubernetes connection between Deployment (AnalyserD) and the service (AnalyserS)
+    Attachment analyserS.apiPort to analyserSC.callee;
+    Attachment analyserD.apiPort to analyserSC.caller; 
+
+    //Performing the kubernetes connection between Deployment (MonitorD) and the service (MonitorS)
+    Attachment monitorS.apiPort to monitorSC.callee;
+    Attachment monitorD.apiPort to monitorSC.caller;  
+
     // Connecting both of them
-    Attachment monitorD.monitorAnalyserPort to monitorAnalyserConn.caller;
-    Attachment analyserS.monitorAnalyserPort to monitorAnalyserConn.callee;
-    
+    Attachment monitorD.monitorAnalyserPort to monitorAnalyserConn.selector;
+    Attachment analyserS.monitorAnalyserPort to monitorAnalyserConn.selectee;
 
 }
