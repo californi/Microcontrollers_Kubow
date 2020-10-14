@@ -10,12 +10,17 @@ define string dynamicMonitoringModeImage = "californibrs/monitor-dynamicmonitori
 
 tactic differentMonitoring() {
   condition {
-    lowTraffic;
+    lowTraffic || highTraffic;
   }
   action {
-    M.rollOut(M.monitorD, "monitor", dynamicMonitoringModeImage);
+    if (lowTraffic){
+      M.rollOut(M.monitorD, "monitor", dynamicMonitoringModeImage);
+    }    
+    if (highTraffic){
+      M.rollOut(M.monitorD, "monitor", proactiveMonitoringModeImage);
+    }
   }
-  effect {
+  effect @[10000]{
     lowTraffic;
   }
 }
